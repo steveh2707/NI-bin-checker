@@ -2,6 +2,8 @@ const cheerio = require("cheerio")
 const axios = require("axios")
 const express = require('express')
 const app = express()
+const serverless = require('serverless-http')
+const router = express.Router()
 
 async function getUrl(searchterm, responseIndex) {
   responseNum = responseIndex || 0
@@ -68,7 +70,7 @@ async function performScraping(url) {
   return bindates
 }
 
-app.get('/:searchterm', (req, res) => {
+router.get('/:searchterm', (req, res) => {
   let searchTerm = req.params.searchterm
   let apiResponse = {}
 
@@ -90,6 +92,9 @@ app.get('/:searchterm', (req, res) => {
     })
 })
 
-app.listen(process.env.PORT || 3000, () => {
-  console.log("server started on: localhost: 3000");
-});
+// app.listen(process.env.PORT || 3000, () => {
+//   console.log("server started on: localhost: 3000");
+// });
+
+app.use('/.netlify/functions/api', router)
+module.exports.handler = serverless(app)
